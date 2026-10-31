@@ -1,3 +1,10 @@
+> **starci183/minio fork.** Community-source fork of [minio/minio](https://github.com/minio/minio) pinned at `RELEASE.2025-10-15T17-29-55Z` (the last community release tag), with unmodified MinIO code. It adds only `Dockerfile.starci` and `.github/workflows/image.yml`, which build from this source and publish `ghcr.io/starci183/minio`. MinIO is licensed AGPL-3.0 (see `LICENSE`, `NOTICE`); the corresponding source of the image is this repository.
+>
+> ```
+> docker pull ghcr.io/starci183/minio:latest
+> docker build -f Dockerfile.starci -t minio .
+> ```
+
 # MinIO Quickstart Guide
 
 [![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io) [![Docker Pulls](https://img.shields.io/docker/pulls/minio/minio.svg?maxAge=604800)](https://hub.docker.com/r/minio/minio/) [![license](https://img.shields.io/badge/license-AGPL%20V3-blue)](https://github.com/minio/minio/blob/master/LICENSE)

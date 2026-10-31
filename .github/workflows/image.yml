@@ -1,0 +1,46 @@
+name: image
+on:
+  push:
+    tags: ['v*', 'RELEASE.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag (e.g. RELEASE.2025-10-15T17-29-55Z-starci.1)'
+        required: true
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          TAG="${{ inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          VER="$(echo "$TAG" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}Z' | head -1 || true)"
+          echo "ver=${VER:-2025-10-15T17-29-55Z}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.starci
+          platforms: linux/amd64,linux/arm64
+          push: true
+          sbom: true
+          provenance: mode=max
+          build-args: |
+            MINIO_VERSION=${{ steps.v.outputs.ver }}
+            IMAGE_VERSION=${{ steps.v.outputs.tag }}
+          tags: |
+            ghcr.io/starci183/minio:${{ steps.v.outputs.tag }}
+            ghcr.io/starci183/minio:latest
